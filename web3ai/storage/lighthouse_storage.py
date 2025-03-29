@@ -1,39 +1,48 @@
-from filecoin_storage import FilecoinStorage, ProviderType
+from lighthouseweb3 import Lighthouse
 from .base import StorageProvider
 
 class LighthouseStorage(StorageProvider):
     def __init__(self, token: str = None):
         """Initialize Lighthouse storage with optional token"""
-        self.client = FilecoinStorage(
-            lighthouse_api_key=token,
-            default_provider=ProviderType.LIGHTHOUSE
-        )
+        self.client = Lighthouse(token=token)
     
-    async def upload_file(self, file_path: str) -> dict:
-        """Upload a single file to Lighthouse storage"""
-        cid = await self.client.upload_file(file_path)
-        return {"cid": cid}
+    def upload_file(self, file_path: str) -> dict:
+        """Upload a single file to Lighthouse storage
+        Returns:
+            dict: Contains upload result with CID in data.Hash
+        """
+        result = self.client.upload(source=file_path)
+        return result
     
-    async def upload_directory(self, dir_path: str) -> dict:
-        """Upload a directory to Lighthouse storage"""
-        cid = await self.client.upload_directory(dir_path)
-        return {"cid": cid}
+    def upload_directory(self, dir_path: str) -> dict:
+        """Upload a directory to Lighthouse storage
+        Returns:
+            dict: Contains upload result with CID in data.Hash
+        """
+        result = self.client.upload(source=dir_path)
+        return result
 
-    async def download_file(self, cid: str, output_path: str) -> None:
+    def download_file(self, cid: str, output_path: str) -> None:
         """Download a file from Lighthouse storage"""
-        await self.client.download_file(cid, output_path)
+        gateway_url = f"https://gateway.lighthouse.storage/ipfs/{cid}"
+        import requests
+        response = requests.get(gateway_url)
+        if response.status_code == 200:
+            with open(output_path, 'wb') as f:
+                f.write(response.content)
+        else:
+            raise Exception(f"Download failed with status code: {response.status_code}")
 
-    async def download_directory(self, cid: str, output_path: str) -> None:
+    def download_directory(self, cid: str, output_path: str) -> None:
         """Download a directory from Lighthouse storage"""
-        await self.client.download_directory(cid, output_path)
+        # Same as file download for now
+        self.download_file(cid, output_path)
 
-    async def get_file_info(self, cid: str) -> dict:
+    def get_file_info(self, cid: str) -> dict:
         """Get information about a stored file"""
-        return await self.client.get_file_info(cid)
-
-    async def delete_file(self, cid: str) -> bool:
-        """Delete a file from Lighthouse storage"""
-        return await self.client.delete_file(cid)
+        # This would need to be implemented based on Lighthouse API capabilities
+        gateway_url = f"https://gateway.lighthouse.storage/ipfs/{cid}"
+        return {"cid": cid, "gateway_url": gateway_url}
 
     def test(self):
         """Simple test function"""
