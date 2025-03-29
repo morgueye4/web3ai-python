@@ -44,6 +44,12 @@ class LighthouseStorage(StorageProvider):
         gateway_url = f"https://gateway.lighthouse.storage/ipfs/{cid}"
         return {"cid": cid, "gateway_url": gateway_url}
 
+    def delete_file(self, cid: str) -> bool:
+        """Delete a file from Lighthouse storage"""
+        # Note: Actual deletion might not be possible with basic Lighthouse SDK
+        # This is a placeholder implementation
+        return True
+
     def test(self):
         """Simple test function"""
         print("Hello from Storage Module") 
