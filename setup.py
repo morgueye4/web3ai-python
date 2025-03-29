@@ -5,7 +5,7 @@ setup(
     version="0.1.0",
     packages=find_packages(),
     install_requires=[
-        "filecoin-storage",  # This will handle lighthouse and other providers
+        "lighthouseweb3==0.1.1",  # Using the correct package name and version
     ],
     author="gdaust",
     description="A modular Web3 AI Python library",
